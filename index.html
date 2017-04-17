@@ -132,10 +132,7 @@
         else if(FormObj.performance.value==="sports"){
             UserVehiclePerformance =0;
         }
-        arr = [UserAge, UserGender, UserMaritalStatus,
-            UserCollision, UserComprehensive, UserSafeDriver, UserGoodStudent,
-            UserPoints, UserVehicleAge, UserVehicleUsage,
-            UserVehiclePerformance, UserYouthfulDriver];
+
         console.log(UserVehiclePerformance);
         console.log(UserVehicleAge);
         console.log(UserVehicleUsage);
@@ -150,7 +147,10 @@
           UserYouthfulDriver = 0;
         }
         basePrem = 514.50258;
-
+        arr = [UserAge, UserGender, UserMaritalStatus,
+            UserCollision, UserComprehensive, UserSafeDriver, UserGoodStudent,
+            UserPoints, UserVehicleAge, UserVehicleUsage,
+            UserVehiclePerformance, UserYouthfulDriver];
         //took out "+ UserYouthfulDriver"
         custPremium = Math.round(514.50258+UserAge+UserCollision+UserComprehensive+UserGender+UserGoodStudent+UserMaritalStatus+UserPoints+UserSafeDriver+UserVehicleAge+UserVehiclePerformance+UserVehicleUsage);
         console.log(custPremium);
@@ -160,6 +160,7 @@
     var i;
     for (i = 0; i<arr.length; ++i){
       if(isNaN(arr[i])){
+          console.log("Error at " + i)
           return false;
       }
     }
@@ -168,7 +169,6 @@
   //returns an error message if errors are found
   function handleErrors() {
     var e = document.getElementById("premText")
-
     e.innerHTML = "Please fill out all forms before submitting";
   }
   function drawVis() {
@@ -177,8 +177,8 @@
 
       myData = [
   			  [//user info
-  				{axis:"Driver Age",value: Math.abs(UserAge)/basePrem, negative: UserAge},//Userage}, //update values here
-          {axis:"Driver Gender",value: Math.abs(UserGender)/basePrem, negative: UserGender},
+  				{axis:"Age",value: Math.abs(UserAge)/basePrem, negative: UserAge},//Userage}, //update values here
+          {axis:"Gender",value: Math.abs(UserGender)/basePrem, negative: UserGender},
           {axis:"Vehicle Performance", value: Math.abs(UserVehiclePerformance)/basePrem, negative: UserVehiclePerformance},
   				{axis:"Vehicle Age",value:Math.abs(UserVehicleAge)/basePrem, negative: UserVehicleAge},
   				{axis:"Vehicle Usage",value:Math.abs(UserVehicleUsage)/basePrem, negative:UserVehicleUsage},
