@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Visualization Group 1 Project</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+<script>
+  var med = 406;
+  var margin = {top: 150, right: 100, bottom: 100, left: 150},
+				radarWidth = Math.min(600, window.innerWidth/3 + 40) - margin.left - margin.right,
+				radarHeight = radarWidth,
+        barHeight = radarHeight;
+  //////////////////////////////////////////////////////////////
+	////////////////////////// Data //////////////////////////////
+	//////////////////////////////////////////////////////////////
+
+	var color = d3.scale.ordinal()
+				.range(["orange","#CC333F","#00A0B0"]);
+
+  var arr, basePrem, custPremium, appPrem, myData, UserAge, UserGender, UserMaritalStatus,
+      UserCollision, UserComprehensive, UserSafeDriver, UserGoodStudent,
+      UserPoints, UserName, UserVehicleAge, UserVehicleUsage,
+      UserVehiclePerformance, UserYouthfulDriver;
+
+  window.onload = setWidthAndHeight;
+
+  function setWidthAndHeight(){
+    var f_width = window.innerWidth/3;
+    var f_height = window.innerHeight - 40;
+    console.log("f_width:" + f_width);
+    console.log("f_height:" + f_height);
+    console.log("creating filler");
+    var svg = d3.select("#vis1").append("svg")
+            .attr("id", 'radar')
+            .attr("width",  f_width)
+            .attr("height", f_height);
+
+    var svg2 = d3.select("#vis2").append("svg")
+            .attr("id", 'table')
+            .attr("width",  f_width)
+            .attr("height", f_height);
+
+    console.log("SVGs created");
+  }
+
+  function VariFunc(){
+        var FormObj =document.getElementById("InsuranceForm");
+        //Age
+        UserName = FormObj.name.value;
+        UserAge=parseInt(FormObj.age.value)*(-0.23381);
+        console.log(UserAge);
+        //Gender
+        //UserGender = parseInt(FormObj.gender.value)*(-9.92097);
+        if(FormObj.gender.value==="male"){
+            UserGender = 9.92097;
+        }
+        else if(FormObj.gender.value==="female"){
+            UserGender = -9.92097;
+        }
+        console.log(UserGender)
+        //Collision Coverage
+        UserCollision = parseInt(FormObj.colCov.value)*(181.93415);
+        console.log(UserCollision);
+        //Comprehensive Coverage
+        UserComprehensive =
+                      parseInt(FormObj.compCov.value)*(26.81212);
+        console.log(UserComprehensive);
+        //Safe Driver
+        if(FormObj.safeDriver.value==="n"){
+            UserSafeDriver = -16.50497;
+        }
+        else if(FormObj.safeDriver.value==="y"){
+            UserSafeDriver = 16.50497;
+        }
+        //UserSafeDriver =parseInt(FormObj.safeDriver.value)*(-16.50497);
+        console.log(UserSafeDriver);
+        //Married Status
+        //UserMaritalStatus = parseInt(FormObj.maritalStatus.value)*(-6.346);
+        if(FormObj.maritalStatus.value==="s"){
+            UserMaritalStatus = (6.346);
+        }
+        else if(FormObj.maritalStatus.value==="m"){
+            UserMaritalStatus = (-6.346);
+        }
+        console.log(UserMaritalStatus);
+        //goodStudent
+        if (FormObj.goodStudent.value==="y"){
+            UserGoodStudent=-15.61050;
+        }
+        else if(FormObj.goodStudent.value==="n"){
+            UserGoodStudent = 15.61050;
+        }
+        //UserGoodStudent = parseInt(FormObj.goodStudent.value)*(-15.61050);
+        //Driver Points
+        UserPoints =
+                      parseInt(FormObj.points.value)*(52.50434);
+        //Vehicle Age
+        UserVehicleAge =
+                      parseInt(FormObj.vehicleAge.value)*(-19.99883);
+        //Vehicle usage
+        if(FormObj.usage.value==="farm"){
+            UserVehicleUsage = -168.10052;
+        }
+        else if(FormObj.usage.value==="work"){
+            UserVehicleUsage = -83.77153;
+        }
+        else if(FormObj.usage.value==="pleasure"){
+            UserVehicleUsage = -124.14083;
+        }
+
+        //Vehicle Performance
+        if(FormObj.performance.value==="high"){
+            UserVehiclePerformance = 72.37435;
+        }
+        else if(FormObj.performance.value==="intermediate"){
+            UserVehiclePerformance = 14.13834;
+        }
+        else if(FormObj.performance.value==="sportsPremium"){
+            UserVehiclePerformance = 13.16942;
+        }
+        else if(FormObj.performance.value==="standard"){
+            UserVehiclePerformance = -7.77912;
+        }
+        arr = [UserAge, UserGender, UserMaritalStatus,
+            UserCollision, UserComprehensive, UserSafeDriver, UserGoodStudent,
+            UserPoints, UserVehicleAge, UserVehicleUsage,
+            UserVehiclePerformance, UserYouthfulDriver];
+        console.log(UserVehiclePerformance);
+        console.log(UserVehicleAge);
+        console.log(UserVehicleUsage);
+
+        //Youthful Driver
+        if(parseInt(FormObj.age.value) <= 25 && parseInt(FormObj.age.value) >=15){
+          console.log("you are a youthful driver")
+          UserYouthfulDriver = 178.39342;
+          UserAge+=UserYouthfulDriver;
+                        //parseInt(FormObj.youthfulDriver.value)*(178.39342);
+        } else {
+          UserYouthfulDriver = 0;
+        }
+        basePrem = 514.50258;
+
+        //took out "+ UserYouthfulDriver"
+        custPremium = Math.round(514.50258+UserAge+UserCollision+UserComprehensive+UserGender+UserGoodStudent+UserMaritalStatus+UserPoints+UserSafeDriver+UserVehicleAge+UserVehiclePerformance+UserVehicleUsage);
+        console.log(custPremium);
+  }
+  //checks all calculations for NaN errors
+  function ErrorCheck() {
+    var i;
+    for (i = 0; i<arr.length; ++i){
+      if(isNaN(arr[i])){
+          return false;
+      }
+    }
+    return true;
+  }
+  //returns an error message if errors are found
+  function handleErrors() {
+    var e = document.getElementById("premText")
+
+    e.innerHTML = "Please fill out all forms before submitting";
+  }
+  function drawVis() {
+    VariFunc();
+    if(ErrorCheck()){
+
+      myData = [
+  			  [//user info
+  				{axis:"Driver Age",value: Math.abs(UserAge)/basePrem, negative: UserAge},//Userage}, //update values here
+          {axis:"Driver Gender",value: Math.abs(UserGender)/basePrem, negative: UserGender},
+          {axis:"Vehicle Performance", value: Math.abs(UserVehiclePerformance)/basePrem, negative: UserVehiclePerformance},
+  				{axis:"Vehicle Age",value:Math.abs(UserVehicleAge)/basePrem, negative: UserVehicleAge},
+  				{axis:"Vehicle Usage",value:Math.abs(UserVehicleUsage)/basePrem, negative:UserVehicleUsage},
+  				{axis:"Driving Record",value: Math.abs(UserPoints)/basePrem, negative:UserPoints}, //UserPoints},
+  				{axis:"Previous Accidents",value: Math.abs(UserSafeDriver)/basePrem, negative:UserSafeDriver},//UsersafeDriver},
+  				{axis:"Comprehensive Coverage",value:Math.abs(UserComprehensive)/basePrem, negative:UserComprehensive},//UserComprehensive},
+  				{axis:"Collision Coverage",value:Math.abs(UserCollision)/basePrem, negative:UserCollision},
+          {axis:"Good Student Discount",value:Math.abs(UserGoodStudent)/basePrem, negative:UserGoodStudent},
+          {axis:"Marital Status",value:Math.abs(UserMaritalStatus)/basePrem, negative:UserMaritalStatus}
+
+        ]//maybe plot average user data?
+  	   ];
+  	//custPremium = 400;
+      appPrem = approximatePrem();
+
+      deleteRadar();
+      deleteTable();
+      deletePremium();
+      deletePremiumLoc();
+      drawRadar("none");
+      drawTable();
+      drawPremium();
+      drawPremiumLoc();
+    } else {
+      handleErrors();
+    }
+  }
+  //rounds premium to nearest tens place for vis3
+  function approximatePrem(){
+    var temp = Math.round(custPremium/10);
+    return temp*10;
+  }
+  //delete existing vis for redrawing
+  function deleteRadar() {
+    d3.select("#radar").remove();
+    console.log("deleting Radar Chart");
+  }
+  function deleteTable() {
+    d3.select("#table").remove();
+    console.log("deleting Table");
+  }
+  function deletePremium() {
+    var doc = document.getElementById("premText");
+    doc.innerHTML = 'YOUR <span class="w3-hide-small">ESTIMATED</span> PREMIUM';
+    console.log("deleting Premium");
+  }
+  function deletePremiumLoc() {
+    d3.select("#premLoc").remove();
+    console.log("deleting Premium");
+  }
+  function drawRadar(axis) {
+    var max = 0, i;
+    //find max to scale the radar chart
+    for(i = 0; i < arr.length; ++i)
+    {
+      if((Math.abs(arr[i])/basePrem)>max)  {
+          max = Math.abs(arr[i])/basePrem;
+          console.log(max)
+          console.log(i)
+      }
+    }
+    max += .05; //adding a little buffer zone
+        var radarChartOptions = {
+      	  w: radarWidth,
+      	  h: radarHeight,
+      	  margin: margin,
+      	  maxValue: max,
+      	  levels: 3,
+      	  roundStrokes: true,
+      	  color: color
+      	};
+  	//////////////////////////////////////////////////////////////
+  	//////////////////// Draw the Chart //////////////////////////
+  	//////////////////////////////////////////////////////////////
+    console.log("drawing Radar Chart");
+    console.log(axis)
+    RadarChart(myData, radarChartOptions, axis);
+  }
+
+  function RadarChart( data, options, theaxis) {
+    //Radar Chart used with permissions from Nadieh Bremer: https://www.visualcinnamon.com/
+	   var cfg = {
+  	    w: 600,				//Width of the circle
+  	    h: 600,				//Height of the circle
+  	    margin: {top: 20, right: 20, bottom: 20, left: 20}, //The margins of the SVG
+        levels: 2,				//How many levels or inner circles should there be drawn
+        maxValue: 0, 			//What is the value that the biggest circle will represent
+        labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
+        wrapWidth: 60, 		//The number of pixels after which a label needs to be given a new line
+        opacityArea: 0.35, 	//The opacity of the area of the blob
+        dotRadius: 4, 			//The size of the colored circles of each blog
+        opacityCircles: 0.2, 	//The opacity of the circles of each blob
+        strokeWidth: 2, 		//The width of the stroke around each blob
+        roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
+        color: d3.scale.category10()	//Color function
+	    };
+      //Put all of the options into a variable called cfg
+      if('undefined' !== typeof options){
+        for(var i in options){
+		        if('undefined' !== typeof options[i]){ cfg[i] = options[i]; }
+          }//for i
+        }//if
+
+        //If the supplied maxValue is smaller than the actual one, replace by the max in the data
+  	     var maxValue = Math.max(cfg.maxValue, d3.max(data, function(i){return d3.max(i.map(function(o){return o.value;}))}));
+
+         var allAxis = (data[0].map(function(i, j){return i.axis})),	//Names of each axis
+            		total = allAxis.length,					//The number of different axes
+            		radius = Math.min(cfg.w/2, cfg.h/2), 	//Radius of the outermost circle
+            		Format = d3.format('%'),			 	//Percentage formatting
+            		angleSlice = Math.PI * 2 / total;		//The width in radians of each "slice"
+
+      //Scale for the radius
+      var rScale = d3.scale.linear()
+            		.range([0, radius])
+            		.domain([0, maxValue]);
+
+    /////////////////////////////////////////////////////////
+    //////////// Create the container SVG and g /////////////
+    /////////////////////////////////////////////////////////
+
+    //Remove whatever chart with the same id/class was present before
+    //d3.select(id).select("svg").remove();
+
+    //Initiate the radar chart SVG
+    var svg = d3.select("#vis1").append("svg")
+                  .attr("id", "radar")
+            			.attr("width",  cfg.w + cfg.margin.left + cfg.margin.right)
+            			.attr("height", cfg.h + cfg.margin.top + cfg.margin.bottom);
+
+    //Append a g element
+    var g = svg.append("g")
+            		.attr("transform", "translate(" + (cfg.w/2 + cfg.margin.left) + "," + (cfg.h/2 + cfg.margin.top) + ")");
+
+    /////////////////////////////////////////////////////////
+    ////////// Glow filter for some extra pizzazz ///////////
+    /////////////////////////////////////////////////////////
+
+    //Filter for the outside glow
+    var filter = g.append('defs').append('filter').attr('id','glow'),
+            		feGaussianBlur = filter.append('feGaussianBlur').attr('stdDeviation','2.5').attr('result','coloredBlur'),
+            		feMerge = filter.append('feMerge'),
+            		feMergeNode_1 = feMerge.append('feMergeNode').attr('in','coloredBlur'),
+            		feMergeNode_2 = feMerge.append('feMergeNode').attr('in','SourceGraphic');
+
+    /////////////////////////////////////////////////////////
+    /////////////// Draw the Circular grid //////////////////
+    /////////////////////////////////////////////////////////
+
+    //Wrapper for the grid & axes
+    var axisGrid = g.append("g").attr("class", "axisWrapper");
+
+    //Draw the background circles
+    axisGrid.selectAll(".levels")
+            	   .data(d3.range(1,(cfg.levels+1)).reverse())
+            	   .enter()
+            		.append("circle")
+            		.attr("class", "gridCircle")
+            		.attr("r", function(d, i){return radius/cfg.levels*d;})
+            		.style("fill", "#CDCDCD")
+            		.style("stroke", "#CDCDCD")
+            		.style("fill-opacity", cfg.opacityCircles)
+            		.style("filter" , "url(#glow)");
+
+    //Text indicating at what % each level is
+    axisGrid.selectAll(".axisLabel")
+            	   .data(d3.range(1,(cfg.levels+1)).reverse())
+            	   .enter().append("text")
+            	   .attr("class", "axisLabel")
+            	   .attr("x", 4)
+            	   .attr("y", function(d){return -d*radius/cfg.levels;})
+            	   .attr("dy", "0.4em")
+            	   .style("font-size", "10px")
+            	   .attr("fill", "#737373")
+            	   .text(function(d,i) { return Format(maxValue * d/cfg.levels); });
+
+    /////////////////////////////////////////////////////////
+    //////////////////// Draw the axes //////////////////////
+    /////////////////////////////////////////////////////////
+
+    //Create the straight lines radiating outward from the center
+    var axis = axisGrid.selectAll(".axis")
+            		.data(allAxis)
+            		.enter()
+            		.append("g")
+            		.attr("class", "axis");
+    //Append the lines
+    axis.append("line")
+            		.attr("x1", 0)
+            		.attr("y1", 0)
+            		.attr("x2", function(d, i){ return rScale(maxValue*1.1) * Math.cos(angleSlice*i - Math.PI/2); })
+            		.attr("y2", function(d, i){ return rScale(maxValue*1.1) * Math.sin(angleSlice*i - Math.PI/2); })
+            		.attr("class", "line")
+            		.style("stroke", "white")
+            		.style("stroke-width", "2px");
+
+    //Append the labels at each axis
+    axis.append("text")
+        .attr("class", "legend")
+            		.style("font-size", "14px")
+                .style("font-style", "bold")
+            		.attr("text-anchor", "middle")
+            		.attr("dy", "0.35em")
+            		.attr("x", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice*i - Math.PI/2); })
+            		.attr("y", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice*i - Math.PI/2); })
+
+            		.text(function(d){return d})
+            		.call(wrap, cfg.wrapWidth);
+
+    /////////////////////////////////////////////////////////
+    ///////////// Draw the radar chart blobs ////////////////
+    /////////////////////////////////////////////////////////
+
+    //The radial line function
+    var radarLine = d3.svg.line.radial()
+    .interpolate("linear-closed")
+    .radius(function(d) { return rScale(d.value); })
+    .angle(function(d,i) {	return i*angleSlice; });
+
+    if(cfg.roundStrokes) {
+    	radarLine.interpolate("cardinal-closed");
+    }
+
+    //Create a wrapper for the blobs
+    var blobWrapper = g.selectAll(".radarWrapper")
+            		.data(data)
+            		.enter().append("g")
+            		.attr("class", "radarWrapper");
+
+            	//Append the backgrounds
+    blobWrapper.append("path")
+            		.attr("class", "radarArea")
+            		.attr("d", function(d,i) { return radarLine(d); })
+            		.style("fill", function(d,i) { return cfg.color(i); })
+            		.style("fill-opacity", cfg.opacityArea)
+            		.on('mouseover', function (d,i){
+            			//Dim all blobs
+            			d3.selectAll(".radarArea")
+            				.transition().duration(200)
+            				.style("fill-opacity", 0.1);
+            			//Bring back the hovered over blob
+            			d3.select(this)
+            				.transition().duration(200)
+            				.style("fill-opacity", 0.7);
+            		})
+            		.on('mouseout', function(){
+            			//Bring back all blobs
+            			d3.selectAll(".radarArea")
+            				.transition().duration(200)
+            				.style("fill-opacity", cfg.opacityArea);
+            		});
+
+            	//Create the outlines
+            	blobWrapper.append("path")
+            		.attr("class", "radarStroke")
+            		.attr("d", function(d,i) { return radarLine(d); })
+            		.style("stroke-width", cfg.strokeWidth + "px")
+            		.style("stroke", function(d,i) { return cfg.color(i); })
+            		.style("fill", "none")
+            		.style("filter" , "url(#glow)");
+
+            	//Append the circles
+            	blobWrapper.selectAll(".radarCircle")
+            		.data(function(d,i) { return d; })
+            		.enter().append("circle")
+            		.attr("class", "radarCircle")
+                .attr("id", function(d) {return d.axis;})
+            		.attr("r", function(d) {if(d.axis == theaxis) { return cfg.dotRadius*3;} else {return cfg.dotRadius;}})
+            		.attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
+            		.attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
+            		.style("fill", function(d,i,j) { if(d.axis == theaxis) { return cfg.color(1);} else {return cfg.color(0);}})
+            		.style("fill-opacity", 0.8);
+
+            	/////////////////////////////////////////////////////////
+            	//////// Append invisible circles for tooltip ///////////
+            	/////////////////////////////////////////////////////////
+
+            	//Wrapper for the invisible circles on top
+            	var blobCircleWrapper = g.selectAll(".radarCircleWrapper")
+            		.data(data)
+            		.enter().append("g")
+            		.attr("class", "radarCircleWrapper");
+
+            	//Append a set of invisible circles on top for the mouseover pop-up
+            	blobCircleWrapper.selectAll(".radarInvisibleCircle")
+            		.data(function(d,i) { return d; })
+            		.enter().append("circle")
+            		.attr("class", "radarInvisibleCircle")
+            		.attr("r", cfg.dotRadius*1.5)
+            		.attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
+            		.attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
+            		.style("fill", "none")
+            		.style("pointer-events", "all")
+            		.on("mouseover", function(d,i) {
+            			newX =  parseFloat(d3.select(this).attr('cx')) - 10;
+            			newY =  parseFloat(d3.select(this).attr('cy')) - 10;
+
+            			tooltip
+            				.attr('x', newX)
+            				.attr('y', newY)
+            				.text(Format(d.value))
+            				.transition().duration(200)
+            				.style('opacity', 1);
+            		})
+            		.on("mouseout", function(){
+            			tooltip.transition().duration(200)
+            				.style("opacity", 0);
+            		});
+
+            	//Set up the small tooltip for when you hover over a circle
+            	var tooltip = g.append("text")
+            		.attr("class", "tooltip")
+            		.style("opacity", 0);
+
+            	/////////////////////////////////////////////////////////
+            	/////////////////// Helper Function /////////////////////
+            	/////////////////////////////////////////////////////////
+
+            	//Taken from http://bl.ocks.org/mbostock/7555321
+            	//Wraps SVG text
+            	function wrap(text, width) {
+            	  text.each(function() {
+            		var text = d3.select(this),
+            			words = text.text().split(/\s+/).reverse(),
+            			word,
+            			line = [],
+            			lineNumber = 0,
+            			lineHeight = 1.4, // ems
+            			y = text.attr("y"),
+            			x = text.attr("x"),
+            			dy = parseFloat(text.attr("dy")),
+            			tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+
+            		while (word = words.pop()) {
+            		  line.push(word);
+            		  tspan.text(line.join(" "));
+            		  if (tspan.node().getComputedTextLength() > width) {
+            			line.pop();
+            			tspan.text(line.join(" "));
+            			line = [word];
+            			tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            		  }
+            		}
+            	  });
+            	}//wrap
+
+            }//RadarChart
+  //draws a table to help user parse information on RadarChart
+  function drawTable() {
+
+    var margin = {top: 100, right: 40, bottom: 150, left: 100};
+    var width = window.innerWidth/3,
+    barHeight = 32
+    tableHeight = window.innerWidth/3 +50;
+
+    var x = d3.scale.linear()
+      .range([0, width]);
+
+      var chart = d3.select("#vis2")
+              .append("svg")
+              .attr("id", "table")
+              .attr("width", width + margin.left);
+
+      chart.attr("height", tableHeight );
+
+      var bar = chart.selectAll("g")
+                    .data(myData[0])
+                    .enter();
+      var offset = margin.top;
+
+        bar.append("g")
+           .append("rect")
+           .attr("class", "vis2rect")
+           .attr("width", width+10)
+           .attr("height", barHeight - 1)
+           .attr("fill", function(d) {
+
+            if (d.value > .5) {
+              return "black";//"#efa834";
+            } else if (d.value <= .5) {
+              return "black";//"#56aff7";
+            } else {
+              return "#f7d955";
+            }
+           })
+           .attr("y", function(d) {
+             offset+=barHeight;
+             return offset
+           })
+           .attr("x", margin.left)
+           .on("mouseover", function(d) {
+             var a = d.axis;
+             deleteRadar();
+             drawRadar(a);
+           })
+           .on("mouseout", function(){
+             deleteRadar();
+             drawRadar();
+           });
+
+      offset = margin.top
+      bar.append("text")
+         .attr("x", width)
+         .attr("y", barHeight / 2)
+         .attr("dy", ".35em")
+         .text(function(d){
+           var string = "increased"
+           if(d.negative < 0) {
+             string = "decreased"
+           }
+           if(Math.round(d.value*100) == 0){
+            return"Your " + d.axis +" did not change your premium."
+           } else {
+            return"Your " + d.axis +" "+ string +" your premium by " + (Math.round(d.value*100)) + "%"
+           }
+         })
+         .attr("transform", function() {
+            offset += barHeight;
+            return "translate(90," +offset+")"
+         });
+
+      console.log("Drawing table");
+    }
+  //this adds name and premium to html
+  function drawPremium() {
+    var e = document.getElementById("premText")
+     //calculated average
+    var classification = "low"
+    var name = UserName.toUpperCase();
+    if(custPremium > med ){
+      classification = "high"
+    }
+    e.innerHTML = '<span class="w3-hide-medium">' + name + '</span>, '
+                  +e.innerHTML + '<span class="w3-hide-medium"> WILL BE</span>:<span id= "'
+                  +classification+'"> $' + custPremium + '</span>';
+    //color premium based on result
+  }
+  //draws bar graph of all user premiums
+  function drawPremiumLoc() {
+    var margin = {top: 10, right: 50, bottom: 30, left: 50};
+    var fullWidth = window.innerWidth - 260 - margin.right,
+        fullHeight = 300,
+        width = fullWidth - margin.left - margin.right,
+        height = fullHeight - margin.top - margin.bottom;
+
+    var premData = [
+      {"value": 160.000000, "count": 3330 },{"value": 170.000000, "count": 5949 },{"value": 180.000000, "count": 4156 },{"value": 190.000000, "count": 3603 },{"value": 200.000000, "count": 3417 },{"value": 210.000000, "count": 2812 },{"value": 220.000000, "count": 2963 },{"value": 230.000000, "count": 2614 },{"value": 240.000000, "count": 2959 },{"value": 250.000000, "count": 2896 },{"value": 260.000000, "count": 3298 },{"value": 270.000000, "count": 3177 },{"value": 280.000000, "count": 3303 },{"value": 290.000000, "count": 4117 },{"value": 300.000000, "count": 4100 },{"value": 310.000000, "count": 4830 },{"value": 320.000000, "count": 4582 },{"value": 330.000000, "count": 5512 },{"value": 340.000000, "count": 5453 },{"value": 350.000000, "count": 5518 },{"value": 360.000000, "count": 6596 },{"value": 370.000000, "count": 6045 },{"value": 380.000000, "count": 6923 },{"value": 390.000000, "count": 6297 },{"value": 400.000000, "count": 6835 },{"value": 410.000000, "count": 6159 },{"value": 420.000000, "count": 5711 },{"value": 430.000000, "count": 5976 },{"value": 440.000000, "count": 5168 },{"value": 450.000000, "count": 5622 },{"value": 460.000000, "count": 4496 },{"value": 470.000000, "count": 4642 },{"value": 480.000000, "count": 3796 },{"value": 490.000000, "count": 3598 },{"value": 500.000000, "count": 3701 },{"value": 510.000000, "count": 3004 },{"value": 520.000000, "count": 2914 },{"value": 530.000000, "count": 2416 },{"value": 540.000000, "count": 2371 },{"value": 550.000000, "count": 2001 },{"value": 560.000000, "count": 1944 },{"value": 570.000000, "count": 1615 },{"value": 580.000000, "count": 1420 },{"value": 590.000000, "count": 1432 },{"value": 600.000000, "count": 1156 },{"value": 610.000000, "count": 1212 },{"value": 620.000000, "count": 969 },{"value": 630.000000, "count": 971 },{"value": 640.000000, "count": 741 },{"value": 650.000000, "count": 709 },{"value": 660.000000, "count": 738 },{"value": 670.000000, "count": 647 },{"value": 680.000000, "count": 625 },{"value": 690.000000, "count": 504 },{"value": 700.000000, "count": 555 },{"value": 710.000000, "count": 513 },{"value": 720.000000, "count": 450 },{"value": 730.000000, "count": 422 },{"value": 740.000000, "count": 381 },{"value": 750.000000, "count": 380 },{"value": 760.000000, "count": 352 },{"value": 770.000000, "count": 354 },{"value": 780.000000, "count": 261 },{"value": 790.000000, "count": 288 },{"value": 800.000000, "count": 312 },{"value": 810.000000, "count": 278 },{"value": 820.000000, "count": 274 },{"value": 830.000000, "count": 241 },{"value": 840.000000, "count": 238 },{"value": 850.000000, "count": 187 },{"value": 860.000000, "count": 215 },{"value": 870.000000, "count": 200 },{"value": 880.000000, "count": 202 },{"value": 890.000000, "count": 193 },{"value": 900.000000, "count": 180 },{"value": 910.000000, "count": 195 },{"value": 920.000000, "count": 172 },{"value": 930.000000, "count": 151 },{"value": 940.000000, "count": 153 },{"value": 950.000000, "count": 135 },{"value": 960.000000, "count": 138 },{"value": 970.000000, "count": 116 },{"value": 980.000000, "count": 122 },{"value": 990.000000, "count": 134 },{"value": 1000.000000, "count": 120 },{"value": 1001.000000, "count": 2633 }
+    ];
+
+    bandwidth = (width)/premData.length - 2;
+    var widthScale = d3.scale.linear()
+    								.range([0, fullWidth]);
+
+    var tickLabels = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, ">1000"];
+    var xAxis = d3.svg.axis()
+    								 .scale(widthScale)
+    								 .orient("bottom")
+                     //.tickValues(ticks)
+                     .tickFormat(function(d,i){ return tickLabels[i] });
+
+    var svg = d3.select("#vis3")
+    									.append("svg")
+                      .attr("id", "premLoc")
+    									.attr("width", fullWidth)
+    									.attr("height", fullHeight);
+
+    var xoffset = margin.left;
+    var rects = svg.selectAll("rect")
+    						.data(premData)
+    						.enter()
+    						.append("rect");
+
+    rects.attr("y", function(d) {
+            var h = (300 * (d.count/8000));
+            if(d.value == appPrem||(appPrem>1001&&  d.value== 1001)||(appPrem<160 &&  d.value== 160)) {
+              return 0;
+            } else {
+              return height - h;
+            }
+          })
+         .attr("x", function(d){
+           xoffset += (bandwidth + 2);
+           return xoffset;
+         })
+    		 .attr("width", bandwidth)
+    		 .attr("height", function(d) {
+    						var h = 300 * (d.count/8000);
+                if(d.value == appPrem ||(appPrem>d.value &&  d.value== 1001)||(appPrem<160 &&  d.value== 160)) {
+                  return height;
+                } else {
+                  return h;
+                }
+    			})
+          .attr("fill", function(d){
+            if(d.value == appPrem||(appPrem>1001&&  d.value== 1001)||(appPrem<160 &&  d.value== 160)) {
+              return "orange";
+            }
+          })
+          .on("mouseover", function(d) {
+            if(d.value == appPrem) {
+            console.log(this.class)
+            svg.append("g")
+               .append("rect")
+               .attr("id", "textrect")
+               .attr("width", fullWidth/2)
+               .attr("height", fullHeight*.2)
+               .attr("fill", "black")
+               .attr("transform", "translate(" + width/2 + ",0)");
+            svg.append("text")
+              .attr("id", "helptext")
+               .attr("x", width+(margin.left/2))
+               .attr("y", margin.left/2)
+               .attr("dy", ".35em")
+               .text(function(){
+                 var rate = "lower";
+                 var perc = custPremium/med;
+                 if(custPremium>med) {
+                    perc = med/custPremium
+                    rate = "higher";
+                 }
+                 perc = 100 - Math.round(perc *100)
+                 return "Your premium is "+perc+ "% "+rate + " than the average premium";
+               })
+               .attr("transform", "translate(" + -width/2 + ",0)");
+          }
+        })
+        .on("mouseout", function(d) {
+          d3.select("#helptext").remove();
+          d3.select("#textrect").remove();
+        });
+
+    svg.append("g")
+    		.attr("class", "xaxis")
+    		.attr("transform", "translate(" + margin.left + "," + height  + ")")
+    		.call(xAxis);
+  }
+
+</script>
+<style>
+  body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", Arial, Helvetica, sans-serif}
+
+  .w3-wide {letter-spacing: 10px;}
+  .w3-hover-opacity {cursor: pointer;}
+
+  #vis2 rect:hover{
+    opacity: .9;
+  }
+
+  #vis2 rect{
+    opacity: .5;
+  }
+
+  #textrect{
+    opacity: .5;
+  }
+
+  #helptext{
+    fill: white;
+    font-family: "Raleway";
+  }
+
+  #vis2 text {
+    fill: white;
+    font: 10px sans-serif;
+    text-anchor: end;
+    font-size: 15px;
+    font-family: "Raleway";
+  }
+
+  #low {
+    color: #59e6ff;
+  }
+  #high {
+    color: orange;
+  }
+
+  #home {
+    background-image: url(carOP2.png); background-color: beige;
+  }
+
+  #radar {
+    float: left;
+  }
+</style>
+
+
+</head>
+<body>
+<!-- Sidebar/menu -->
+<nav class="w3-sidebar w3-light-grey w3-collapse w3-top" style="z-index:3;width:260px" id="mySidebar">
+  <div class="w3-container w3-display-container w3-padding-16">
+
+  <i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
+  <h3> <center> What Does Your Premium Look Like? </center> </h3>
+  <hr style="height:3px;border-width:0;color:gray;background-color:gray">
+  <br>
+  <h5><i class="fa fa-car fa-lg"></i> Personal Information </h5>
+  <hr style="height:1px;border-width:0;color:gray;background-color:gray">
+  <form id="InsuranceForm">
+  	<p><label> Name: </label></p>
+  	<input class="w3-input w3-border" type="text" name="name">
+  	<p><label> Gender: </label></p>
+  		<div class="w3-row-padding">
+ 	<div class="w3-half">
+  	<input class="w3-input w3-border" type="radio" name="gender" value="male" id="gender">  Male </div>
+  	<div class="w3-half">
+  	<input class="w3-input w3-border" type="radio" name="gender" value="female" id="gender">  Female </div>
+	</div>
+  	<p><label> Age: </label></p>
+  	<input class="w3-input w3-border" type="number" name="age" id="age">
+  	<p> <label> Marital Status: </label></p>
+  	<div class="w3-row-padding">
+ 	<div class="w3-half">
+  	<input class="w3-input w3-border" type="radio" name="maritalStatus" value="s" id="maritalStatus">
+  	Single  </div>
+  	<div class="w3-half">
+  	<input class="w3-input w3-border" type="radio" name="maritalStatus" value="m" id="maritalStatus">
+  	 Married </div>
+  	</div>
+
+  	<p> <label> Do you have above a 3.0 gpa? </label></p>
+  	<div class="w3-row-padding">
+ 	<div class="w3-half">
+  	<input class="w3-input w3-border" type="radio" name="goodStudent" value="y"> Yes </div>
+    <div class="w3-half">
+    <input class="w3-input w3-border" type="radio" name="goodStudent" value="n"> No/NA </div>
+    </div>
+
+    <i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
+    <h5><i class="fa fa-car fa-lg"></i> Driving Record </h5>
+    <hr style="height:1px;border-width:0;color:gray;background-color:gray">
+    <p><label> Do you have points on your license?: </label> <br>
+    <small> Please enter a number between 0-7 </small> </p>
+    <input class="w3-input w3-border" type="number" name="points" id="points">
+    <p><label> Have you been in an accident within the past six years? </label></p>
+    <div class="w3-row-padding">
+ 	<div class="w3-half">
+    <input class="w3-input w3-border" type="radio" name="safeDriver" value="y" id="safeDriver"> Yes </div>
+    <div class="w3-half"> <input class="w3-input w3-border" type="radio" name="safeDriver" value="n" id="safeDriver"> No </div>
+    </div>
+
+  <i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
+  <h5><i class="fa fa-car fa-lg"></i> Vehicle Information </h5>
+  <hr style="height:1px;border-width:0;color:gray;background-color:gray">
+  <p><label> Make: </label></p>
+  <select name="make" id="make">
+  <option value="ford">Ford</option>
+  <option value="chev">Chevrolet</option>
+  <option value="tyta">Toyota</option>
+  <option value="dodg">Dodge</option>
+  <option value="hond">Honda</option>
+  <option value="nssn">Nissan</option>
+  <option value="gmc">GMC</option>
+  <option value="jeep">Jeep</option>
+  <option value="Pont">Pontiac</option>
+  <option value="buik">Buick</option>
+  <option value="merc">Mercury</option>
+  <option value="chry">Chrylser</option>
+  <option value="olds">Oldsmobile</option>
+  <option value="cadi">Cadillac</option>
+  <option value="mazd">Mazda</option>
+  <option value="linc">Lincoln</option>
+  <option value="mits">Mitsubishi</option>
+  <option value="kia">Kia</option>
+  <option value="satn">Saturn</option>
+  <option value="lexs">Lexus</option>
+  <option value="vlks">Volkswagen</option>
+  <option value="acur">Acura</option>
+  <option value="mbnz">Mercedes</option>
+  <option value="bmw">BMW</option>
+  <option value="hyun">Hyundia</option>
+  <option value="rovr"> Land Rover </option>
+  <option value="suzu"> Suzuki </option>
+  </select>
+
+  <p><label> Vehicle Age: </label></p>
+  <input class="w3-input w3-border" type="number" name="vehicleAge" id="Vehicle_Ages">
+  <p><label>Vehicle Engine Performance: </label></p>
+  <select name="performance" id="performance">
+  <option value="high"> High </option>
+  <option value="standard"> Standard </option> <!--  check on this later-->
+  <!--<option value="sports"> Sports </option>-->
+  <option value="sportsPremium"> Sports Premium </option>
+  <option value="intermediate"> Intermediate </option>
+  </select>
+  <p><label> What do you use your vehicle for? </label></p>
+  <select name="usage" size="1" id="Vehicle_Usage">
+  <option  value="work"> Work </option>
+  <!--<option value="business"> Business </option>    There is no coefficient for this-->
+  <option  value="pleasure"> Pleasure </option>
+  <option  value="farm"> Farm </option>
+  </select>
+
+  <i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
+  <h5> <i class="fa fa-car fa-lg"></i> Select which type of coverage you'd like </h5>
+  <hr style="height:1px;border-width:0;color:gray;background-color:gray">
+  <p><label> Vehicle Comprehensive Coverage: </label></p>
+  <div class="w3-row-padding">
+ 	<div class="w3-half">
+    <input class="w3-input w3-border" type="radio" name="compCov" value=1 id="compCov"> Yes </div>
+    <div class="w3-half"> <input class="w3-input w3-border" type="radio" name="compCov" value=0 id="compCov"> No </div>
+    </div>
+  <p><label>Vehicle Collision Coverage: </label> </p>
+  <div class="w3-row-padding">
+ 	<div class="w3-half">
+    <input class="w3-input w3-border" type="radio" name="colCov" value=1 id="colCov"> Yes </div>
+    <div class="w3-half"> <input class="w3-input w3-border" type="radio" name="colCov" value=0 id="colCov"> No </div>
+    </div>
+
+  <p><button class="w3-button w3-block w3-green w3-left-align" type="button" onclick="drawVis()">Submit</button></p>
+  </form>
+</div>
+
+</nav>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- !PAGE CONTENT! -->
+<div class="w3-main w3-white" style="margin-left:260px">
+
+<header>
+<div class="w3-display-container" id="home">
+
+  <div class="w3-hide-large" style="margin-top:80px"></div>
+  <div class="w3-center w3-top" style="margin-top:30px">
+    <span class="w3-padding-large w3-black w3-xlarge w3-wide w3-animate-opacity" style="margin-left:-260px" id = "premText">YOUR <span class="w3-hide-medium">ESTIMATED</span> PREMIUM</span>
+  </div>
+	<div class="w3-display-container" id="vis1">
+	<!-- vis 1 goes here -->
+  <!-- <svg id = "radar" class="filler"></svg>-->
+	</div>
+
+	<div class="w3-display-container" id="vis2">
+    <!--  <svg id = "table" class="filler"></svg>-->
+	<!-- vis 2 goes here -->
+	</div>
+
+
+	<div class="w3-display-container" id="vis3">
+		<!-- vis 3 goes here -->
+	</div>
+
+
+</div>
+
+</header>
+
+	<!-- Push down content on small screens -->
+
+</div>
+
+</body>
+</html>
+<!--Developed by Nicholas Puig, Richard Whitehose, Hailey Jannetty, and Julian Amrine for CSCE 567-->
