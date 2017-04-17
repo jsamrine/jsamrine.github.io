@@ -112,9 +112,6 @@
         else if(FormObj.usage.value==="pleasure"){
             UserVehicleUsage = -124.14083;
         }
-        else if(FormObj.usage.value==="business"){
-            UserVehicleUsage = 0;
-        }
 
         //Vehicle Performance
         if(FormObj.performance.value==="high"){
@@ -128,9 +125,6 @@
         }
         else if(FormObj.performance.value==="standard"){
             UserVehiclePerformance = -7.77912;
-        }
-        else if(FormObj.performance.value==="sports"){
-            UserVehiclePerformance =0;
         }
         arr = [UserAge, UserGender, UserMaritalStatus,
             UserCollision, UserComprehensive, UserSafeDriver, UserGoodStudent,
@@ -860,14 +854,14 @@
   <select name="performance" id="performance">
   <option value="high"> High </option>
   <option value="standard"> Standard </option> <!--  check on this later-->
-  <option value="sports"> Sports </option>
+  <!--<option value="sports"> Sports </option>-->
   <option value="sportsPremium"> Sports Premium </option>
   <option value="intermediate"> Intermediate </option>
   </select>
   <p><label> What do you use your vehicle for? </label></p>
   <select name="usage" size="1" id="Vehicle_Usage">
   <option  value="work"> Work </option>
-  <option value="business"> Business </option>
+  <!--<option value="business"> Business </option>    There is no coefficient for this-->
   <option  value="pleasure"> Pleasure </option>
   <option  value="farm"> Farm </option>
   </select>
